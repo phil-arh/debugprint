@@ -3,9 +3,13 @@ import sys
 import os
 import time
 import random
+import re
 from pprint import pformat
 from xml.etree import ElementTree
 from xml.dom import minidom
+
+module_name_re = re.compile(r"^[A-Za-z0-9:_]+$")
+
 
 def _ansify_colour(colour_code):
     return f"\x1b[38;5;{colour_code}m"
@@ -21,6 +25,7 @@ _TIME_PRINT_COLOUR = _ansify_colour(88)
 
 _format_functions = []
 
+
 def use_format(format_function):
     global _format_functions
     _format_functions.append(format_function)
@@ -29,10 +34,19 @@ def use_format(format_function):
 _debug_colours_already_used = []
 _time_debug_last_called = int(time.time() * 1000)
 
+
 class Debug:  # pylint: disable=too-few-public-methods
     """Class that emulates the behaviour of the node.js debug module."""
 
     def __init__(self, module_name):
+        if not isinstance(module_name, str):
+            raise TypeError(f"module name must be a string not {type(module_name)}")
+        if not module_name_re.match(module_name):
+            raise ValueError(
+                "module name must consist of letters, numbers, underscores, "
+                "and colons only, e.g. 'app', 'app:main', app:some_library' - "
+                f"<{module_name}> is invalid"
+            )
         self.module_name = module_name
         self.split_module_name = module_name.split(":")
         global _debug_colours_already_used
@@ -46,13 +60,15 @@ class Debug:  # pylint: disable=too-few-public-methods
             _debug_colours_already_used = []
 
     def __call__(self, printable, caption=""):
-        if not self._should_print():
+        if not self.enabled:
             return
         global _time_debug_last_called
         time_now = int(time.time() * 1000)
+        time_since_last_called = time_now - _time_debug_last_called
         _time_debug_last_called = time_now
         if caption:
-            caption = f"<< {caption} >>"  # replace with French quote marks
+            caption = f"« {caption} » "
+        response = None
         for format_function in _format_functions:
             try:
                 response = format_function(printable)
@@ -78,16 +94,23 @@ class Debug:  # pylint: disable=too-few-public-methods
             f"{_NO_FORMAT}\n"
         )
 
-    def _should_print(self):
-        if not "DEBUG" in os.environ:
+    @property
+    def enabled(self):
+        if not "DEBUG" in os.environ or not os.environ["DEBUG"]:
             return False
         if os.environ["DEBUG"] == "*":
             return True
         split_debug = os.environ["DEBUG"].split(":")
-        for matched in zip(split_debug, self.split_module_name):
-            if matched[0] == "*":
+        if len(split_debug) > len(self.split_module_name):
+            return False
+        for debug_path, module_path in zip(split_debug, self.split_module_name):
+            if debug_path == "*":
                 continue
-            if matched[0] != matched[1]:
+            if len(debug_path) > 1 and debug_path[0] == "-":
+                if debug_path[1:] == module_path:
+                    break
+                continue
+            if debug_path != module_path:
                 break
         else:  # nobreak
             return True
