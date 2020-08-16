@@ -77,19 +77,20 @@ class Debug:  # pylint: disable=too-few-public-methods
             if response:
                 break
         if response:
-            printable = f">>>>\n{response}\n<<<<"
+            formatted_printable = f">>>>\n{response}\n<<<<"
         elif isinstance(printable, (list, dict, set)):
-            printable = f">>>>\n{pformat(printable)}\n<<<<"
-        elif isinstance(printable, ElementTree.ElementTree):
-            formatted_printable = minidom.parseString(
+            formatted_printable = f">>>>\n{pformat(printable)}\n<<<<"
+        elif isinstance(printable, (ElementTree.ElementTree, ElementTree.Element)):
+            beautified_xml = minidom.parseString(
                 ElementTree.tostring(printable)
             ).toprettyxml()
+            formatted_printable = f">>>>\n{beautified_xml}\n<<<<"
         elif not isinstance(printable, str):
-            printable = repr(printable)
+            formatted_printable = repr(printable)
         sys.stderr.write(
             f"{_BOLD}{self.ansi_colour}{self.module_name} {_NO_FORMAT}"
             f"{_BOLD}{caption}{_NO_FORMAT}"
-            f"{printable}"
+            f"{formatted_printable}"
             f"{_TIME_PRINT_COLOUR} +{time_since_last_called}"
             f"{_NO_FORMAT}\n"
         )
