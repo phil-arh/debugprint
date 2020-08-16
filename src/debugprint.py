@@ -78,7 +78,7 @@ class Debug:  # pylint: disable=too-few-public-methods
                 break
         if response:
             formatted_printable = f">>>>\n{response}\n<<<<"
-        elif isinstance(printable, (list, dict, set)):
+        elif isinstance(printable, (list, dict, set, tuple)):
             formatted_printable = f">>>>\n{pformat(printable)}\n<<<<"
         elif isinstance(printable, (ElementTree.ElementTree, ElementTree.Element)):
             beautified_xml = minidom.parseString(
