@@ -12,7 +12,7 @@ module_name_re = re.compile(r"^[A-Za-z0-9:_]+$")
 
 
 def _ansify_colour(colour_code):
-    return f"\x1b[38;5;{colour_code}m"
+    return "\x1b[38;5;{}m".format(colour_code)
 
 
 _NO_FORMAT = "\033[0m"
@@ -40,12 +40,16 @@ class Debug:  # pylint: disable=too-few-public-methods
 
     def __init__(self, module_name):
         if not isinstance(module_name, str):
-            raise TypeError(f"module name must be a string not {type(module_name)}")
+            raise TypeError(
+                "module name must be a string not {}".format(type(module_name))
+            )
         if not module_name_re.match(module_name):
             raise ValueError(
-                "module name must consist of letters, numbers, underscores, "
-                "and colons only, e.g. 'app', 'app:main', app:some_library' - "
-                f"<{module_name}> is invalid"
+                (
+                    "module name must consist of letters, numbers, underscores, "
+                    "and colons only, e.g. 'app', 'app:main', app:some_library' - "
+                    "<{}> is invalid"
+                ).format(module_name)
             )
         self.module_name = module_name
         self.split_module_name = module_name.split(":")
@@ -67,7 +71,7 @@ class Debug:  # pylint: disable=too-few-public-methods
         time_since_last_called = time_now - _time_debug_last_called
         _time_debug_last_called = time_now
         if caption:
-            caption = f"« {caption} » "
+            caption = "« {} » ".format(caption)
         response = None
         for format_function in _format_functions:
             try:
@@ -77,22 +81,33 @@ class Debug:  # pylint: disable=too-few-public-methods
             if response:
                 break
         if response:
-            formatted_printable = f">>>>\n{response}\n<<<<"
+            formatted_printable = ">>>>\n{}\n<<<<".format(response)
         elif isinstance(printable, (list, dict, set, tuple)):
-            formatted_printable = f">>>>\n{pformat(printable)}\n<<<<"
+            formatted_printable = ">>>>\n{}\n<<<<".format(pformat(printable))
         elif isinstance(printable, (ElementTree.ElementTree, ElementTree.Element)):
             beautified_xml = minidom.parseString(
                 ElementTree.tostring(printable)
             ).toprettyxml()
-            formatted_printable = f">>>>\n{beautified_xml}\n<<<<"
+            formatted_printable = ">>>>\n{}\n<<<<".format(beautified_xml)
         elif not isinstance(printable, str):
             formatted_printable = repr(printable)
         sys.stderr.write(
-            f"{_BOLD}{self.ansi_colour}{self.module_name} {_NO_FORMAT}"
-            f"{_BOLD}{caption}{_NO_FORMAT}"
-            f"{formatted_printable}"
-            f"{_TIME_PRINT_COLOUR} +{time_since_last_called}"
-            f"{_NO_FORMAT}\n"
+            (
+                "{bold}{ansi_colour}{module_name} {no_format}"
+                "{bold}{caption}{no_format}"
+                "{formatted_printable}"
+                "{time_print_colour} +{time_since_last_called}"
+                "{no_format}\n"
+            ).format(
+                bold=_BOLD,
+                ansi_colour=self.ansi_colour,
+                module_name=self.module_name,
+                no_format=_NO_FORMAT,
+                caption=caption,
+                formatted_printable=formatted_printable,
+                time_print_colour=_TIME_PRINT_COLOUR,
+                time_since_last_called=time_since_last_called,
+            )
         )
 
     @property
