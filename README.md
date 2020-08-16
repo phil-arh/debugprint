@@ -26,23 +26,23 @@ Why use `debugprint` instead of just regular `print`?
 
 `debug("Hello, world!")` and `debug("Hello, world!", "a caption")`:
 
-![Basic](/screenshots/basic.png)
+![Basic](https://github.com/phil-arh/debugprint/blob/master/screenshots/basic.png)
 
 ### Dicts
 
 `debug(example_dict)`
 
-![Dict no caption](/screenshots/dict_no_caption.png)
+![Dict no caption](https://github.com/phil-arh/debugprint/blob/master/screenshots/dict_no_caption.png)
 
 `debug(example_dict, "A pretty-printed nested dict")`
 
-![Dict with caption](/screenshots/dict_caption.png)
+![Dict with caption](https://github.com/phil-arh/debugprint/blob/master/screenshots/dict_caption.png)
 
 ### XML
 
 `debug(example_xml)`
 
-![XML](/screenshots/xml.png)
+![XML](https://github.com/phil-arh/debugprint/blob/master/screenshots/xml.png)
 
 **`debugprint` can also pretty-print nested lists, tuples, and mixed JSON by default - essentially anything that can be handled by the standard library `pprint` module.**
 
