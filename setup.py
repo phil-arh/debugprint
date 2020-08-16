@@ -5,9 +5,9 @@ with open("README.md", "r") as file:
 
 setup(
     name="debugprint",
-    version="0.1.2",
+    version="0.1.6",
     license="Apache 2.0",
-    scripts=["src/debugprint.py"],
+    packages=find_packages(),
     author="Phil Howe",
     author_email="philhbusiness@gmail.com",
     description="A clone of the npm debug module with ability to implement custom formatting",
