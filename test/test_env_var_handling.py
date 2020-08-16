@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.debugprint import Debug
+from debugprint import Debug
 
 
 def stub_out_stderr(monkeypatch):

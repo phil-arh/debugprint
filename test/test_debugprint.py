@@ -4,7 +4,7 @@ import re
 import xml
 from unittest.mock import MagicMock
 
-from src.debugprint import Debug
+from debugprint import Debug
 
 os.environ["DEBUG"] = "*"
 

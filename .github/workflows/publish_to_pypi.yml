@@ -1,0 +1,36 @@
+name: Test and deploy debugprint to PyPI
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: 'install dependencies'
+      run: |
+        python -m pip install pytest
+        python -m pip install setuptools
+        python -m pip install wheel
+    - name: 'run tests'
+      run: pytest -s -v
+    - name: 'build'
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Publish distribution to Test PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.TEST_PYPI_API_KEY }}
+        repository_url: https://test.pypi.org/legacy/
+    - name: Publish distribution to PyPI
+      # if: startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_KEY }}
