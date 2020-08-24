@@ -89,7 +89,9 @@ class Debug:  # pylint: disable=too-few-public-methods
                 ElementTree.tostring(printable)
             ).toprettyxml()
             formatted_printable = ">>>>\n{}\n<<<<".format(beautified_xml)
-        elif not isinstance(printable, str):
+        elif isinstance(printable, str):
+            formatted_printable = printable
+        else:
             formatted_printable = repr(printable)
         sys.stderr.write(
             (
