@@ -5,7 +5,7 @@ with open("README.md", "r") as file:
 
 setup(
     name="debugprint",
-    version="0.1.9",
+    version="0.1.10",
     license="Apache 2.0",
     packages=find_packages(),
     author="Phil Howe",

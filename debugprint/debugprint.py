@@ -8,7 +8,7 @@ from pprint import pformat
 from xml.etree import ElementTree
 from xml.dom import minidom
 
-module_name_re = re.compile(r"^[A-Za-z0-9:_]+$")
+module_name_re = re.compile(r"^[A-Za-z0-9:_\-]+$")
 
 
 def _ansify_colour(colour_code):
@@ -46,9 +46,9 @@ class Debug:  # pylint: disable=too-few-public-methods
         if not module_name_re.match(module_name):
             raise ValueError(
                 (
-                    "module name must consist of letters, numbers, underscores, "
-                    "and colons only, e.g. 'app', 'app:main', app:some_library' - "
-                    "<{}> is invalid"
+                    "module name must consist of letters, numbers, "
+                    "underscores, hyphens, and colons only, e.g. 'app', "
+                    "'app:main', 'app:some_library' - <{}> is invalid"
                 ).format(module_name)
             )
         self.module_name = module_name
@@ -116,20 +116,22 @@ class Debug:  # pylint: disable=too-few-public-methods
     def enabled(self):
         if not "DEBUG" in os.environ or not os.environ["DEBUG"]:
             return False
-        if os.environ["DEBUG"] == "*":
-            return True
-        split_debug = os.environ["DEBUG"].split(":")
-        if len(split_debug) > len(self.split_module_name):
-            return False
-        for debug_path, module_path in zip(split_debug, self.split_module_name):
-            if debug_path == "*":
+        split_paths = os.environ["DEBUG"].split(",")
+        for path in split_paths:
+            if path == "*":
+                return True
+            split_debug = path.split(":")
+            if len(split_debug) > len(self.split_module_name):
                 continue
-            if len(debug_path) > 1 and debug_path[0] == "-":
-                if debug_path[1:] == module_path:
+            for debug_path, module_path in zip(split_debug, self.split_module_name):
+                if debug_path == "*":
+                    continue
+                if len(debug_path) > 1 and debug_path[0] == "-":
+                    if debug_path[1:] == module_path:
+                        break
+                    continue
+                if debug_path != module_path:
                     break
-                continue
-            if debug_path != module_path:
-                break
-        else:  # nobreak
-            return True
+            else:  # nobreak
+                return True
         return False

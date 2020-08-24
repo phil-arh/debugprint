@@ -14,7 +14,7 @@ def stub_out_stderr(monkeypatch):
 
 
 def test_possible_module_names():
-    allowed_names = ["a", "a:b", "a_1:b_2", "Aa1:2_3"]
+    allowed_names = ["a", "a:b", "a_1:b_2", "Aa1:2_3", "a-a1:b2"]
     for s in allowed_names:
         Debug(s)
     type_errors = [1, None]
@@ -85,3 +85,17 @@ def test_with_minus_in_the_middle(monkeypatch):
         mock_stderr = stub_out_stderr(monkeypatch)
         Debug(s)(1)
         mock_stderr.assert_called_once()
+
+
+def test_multiple_options(monkeypatch):
+    os.environ["DEBUG"] = "a,a:*"
+    test_strings = ["a", "a:b", "a:b:c"]
+    for s in test_strings:
+        mock_stderr = stub_out_stderr(monkeypatch)
+        Debug(s)(1)
+        mock_stderr.assert_called_once()
+    test_strings = ["b:c:c", "b:a:c", "b:f:c", "b:a:c", "b"]
+    for s in test_strings:
+        mock_stderr = stub_out_stderr(monkeypatch)
+        Debug(s)(1)
+        mock_stderr.assert_not_called()

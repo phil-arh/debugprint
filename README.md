@@ -64,6 +64,8 @@ Import into every module where you want to do debug printing, then create an ins
 ```python
 from debugprint import Debug
 
+# module names can contain: letters, numbers, underscores, hyphens, and colons
+# the actual regex is this: /^[A-Za-z0-9:_\-]+$/
 debug = Debug("my_application:some_subpackage:this_module")
 
 # simple printing
